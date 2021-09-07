@@ -207,8 +207,8 @@ def RAW_DATA_ACQUISITION(Sfiles_path, Wfiles_path, outputX_file, outputY_file, s
         ###############################################################################################################
         ###############################################################################################################
         ##############################################################################################################
-    np.save(outputX_file,training_dataX)
-    np.save(outputY_file,training_dataY)
+    #np.save(outputX_file,training_dataX)
+    #np.save(outputY_file,training_dataY)
     print('DATA ACQUISIONTION RESULTS:')
     print('For the S-files path: '+Sfiles_path )
     print('Succesfully found : '+str(num_wav_found)+' Wav-files.')
