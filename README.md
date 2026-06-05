@@ -12,7 +12,7 @@ Manual seismic phase picking is an important but time-consuming step in routine 
 2. probability of S-wave arrival,
 3. probability of noise/background.
 
-The final phase picks are obtained by locating the strongest peaks in the predicted P and S probability distributions. The evaluation criterion used in the thesis counts a prediction as correct when the absolute temporal difference between the model pick and the manual label is below a chosen threshold, especially \(\Delta t < 1\) s.
+The final phase picks are obtained by locating the strongest peaks in the predicted P and S probability distributions. The evaluation criterion used in the thesis counts a prediction as correct when the absolute temporal difference between the model pick and the manual label is below a chosen threshold, especially $\Delta t < 1$ s.
 
 ## Scientific motivation
 
@@ -47,7 +47,7 @@ The original workflow is organized around SEISAN-style seismic event data:
    - Extracts station/channel traces with valid P and S picks.
    - Resamples every trace to a fixed length of 3000 points.
    - Normalizes each trace using a machine-learning convention similar to
-     \[(x - \bar{x}) / (x_{max} - x_{min}).\]
+     $$(x - \bar{x}) / (x_{\max} - x_{\min}).$$
 
 2. **Label generation**
    - Converts manual phase arrival times into indices in the 3000-point trace.
@@ -78,7 +78,7 @@ The original workflow is organized around SEISAN-style seismic event data:
 5. **Evaluation**
    - Tests the model on January and February 2021 data.
    - Extracts predicted P and S picks from probability peaks.
-   - Computes \(\Delta t_P\), \(\Delta t_S\), and counts correct picks under 1 s, 2 s, and 3 s thresholds.
+   - Computes $\Delta t_P$, $\Delta t_S$, and counts correct picks under 1 s, 2 s, and 3 s thresholds.
    - Saves diagnostic figures into `best`, `worst`, and general-result folders.
 
 ## Model architecture
@@ -117,15 +117,15 @@ For each test trace:
 4. If the predicted P position appears after the predicted S position, the script swaps them to enforce the expected physical order.
 5. The temporal errors are computed as:
 
-\[
-\Delta t_P = \left| \frac{(i_P^{pred} - i_P^{label})}{d} (t_{end} - t_{start}) \right|,
-\]
+$$
+\Delta t_P = \left| \frac{(i_P^{\mathrm{pred}} - i_P^{\mathrm{label}})}{d} (t_{\mathrm{end}} - t_{\mathrm{start}}) \right|
+$$
 
-\[
-\Delta t_S = \left| \frac{(i_S^{pred} - i_S^{label})}{d} (t_{end} - t_{start}) \right|,
-\]
+$$
+\Delta t_S = \left| \frac{(i_S^{\mathrm{pred}} - i_S^{\mathrm{label}})}{d} (t_{\mathrm{end}} - t_{\mathrm{start}}) \right|
+$$
 
-where \(d = 3000\) is the fixed trace dimension.
+where $d = 3000$ is the fixed trace dimension.
 
 The scripts report:
 
@@ -133,7 +133,7 @@ The scripts report:
 - number of S phases detected within 1, 2, and 3 seconds,
 - number of traces with at least one correct phase,
 - number of traces with both phases correct,
-- mean and standard deviation of \(\Delta t_P\) and \(\Delta t_S\).
+- mean and standard deviation of $\Delta t_P$ and $\Delta t_S$.
 
 ## Thesis results summary
 
@@ -143,9 +143,9 @@ For February 2021, the thesis reports the following SeismicNet counts:
 
 | Criterion | P phases | S phases | At least one phase | Both phases |
 |---|---:|---:|---:|---:|
-| \(\Delta t < 1\) s | 763 | 876 | 1172 | 467 |
-| \(\Delta t < 2\) s | 949 | 1161 | 1376 | 734 |
-| \(\Delta t < 3\) s | 1039 | 1277 | 1445 | 871 |
+| $\Delta t < 1$ s | 763 | 876 | 1172 | 467 |
+| $\Delta t < 2$ s | 949 | 1161 | 1376 | 734 |
+| $\Delta t < 3$ s | 1039 | 1277 | 1445 | 871 |
 
 These results show that the model learned meaningful seismic arrival patterns, while also revealing limitations in noisy traces, traces with multiple events, and cases where volcanic or swarm activity produced ambiguous probability peaks.
 
