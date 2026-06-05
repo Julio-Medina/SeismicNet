@@ -1,0 +1,127 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{authblk}
+
+\title{SeismicNet: A One-Dimensional Convolutional Neural Network for Automatic P- and S-Wave Arrival Picking in Local Seismic Records}
+\author{Julio Antonio Medina Chut\'{a}n}
+\affil{Escuela de Ciencias F\'{i}sicas y Matem\'{a}ticas, Universidad de San Carlos de Guatemala}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Automatic phase picking is a central step in earthquake monitoring and seismic event characterization. We present SeismicNet, a one-dimensional convolutional neural network designed to detect P- and S-wave arrivals in local seismic waveform traces. The model receives a normalized 3000-sample trace and outputs three time-dependent probability distributions corresponding to P arrival, S arrival, and noise/background. Training labels are generated from manual picks by centering Gaussian distributions at the recorded arrival times. SeismicNet was trained using local seismic records from 2019--2020 and evaluated on unseen data from January and February 2021. Predictions were assessed by the temporal error between the maximum predicted probability and the manual phase label under 1 s, 2 s, and 3 s thresholds. The results show that the model learns meaningful phase-arrival patterns and performs better on less noisy data, while multi-event traces and swarm/volcanic activity remain major sources of error. These findings support the use of convolutional neural networks as assistance tools for routine seismic analysis and motivate larger, cleaner, and more diverse local waveform datasets for future automatic picking systems.
+\end{abstract}
+
+\section{Introduction}
+Seismic phase picking is a fundamental task in routine earthquake analysis. Manual identification of P- and S-wave arrivals is accurate but time-consuming, motivating automatic methods that can support analysts and accelerate event characterization. This paper presents SeismicNet, a convolutional neural network developed for automatic phase detection in local seismic traces.
+
+\section{Background}
+\subsection{Automatic seismic phase picking}
+% Discuss P and S phases, routine analysis, and manual-picking limitations.
+
+\subsection{Deep learning for seismic waveforms}
+% Position convolutional models as feature extractors for waveform signals.
+
+\subsection{Physics motivation}
+% Briefly mention the statistical-physics view of neural networks, spin glasses, Hopfield networks, and emergent computation.
+
+\section{Data}
+\subsection{Data source}
+The model was developed using local seismic records from INSIVUMEH. Training data correspond to 2019--2020, while January and February 2021 were used for evaluation on unseen data.
+
+\subsection{Preprocessing}
+Each selected waveform trace was resampled to a fixed dimension $d=3000$ and normalized. Only traces with usable P and S picks inside the waveform interval were retained.
+
+\subsection{Label construction}
+Manual phase picks were transformed into sample indices and represented as Gaussian probability distributions centered on the P and S arrivals. A third channel represents noise/background. Therefore, for each input
+\begin{equation}
+    x \in \mathbb{R}^{3000 \times 1},
+\end{equation}
+the target is
+\begin{equation}
+    Y \in \mathbb{R}^{3000 \times 3},
+\end{equation}
+where the three output classes are P phase, S phase, and noise.
+
+\section{Methods}
+\subsection{Architecture}
+SeismicNet uses one-dimensional convolution and transposed convolution layers followed by a dense projection and softmax output. The output is a probability distribution over the three classes for every temporal sample.
+
+\begin{table}[h]
+\centering
+\caption{SeismicNet architecture.}
+\begin{tabular}{lll}
+\toprule
+Layer & Parameters & Purpose \\
+\midrule
+Conv1D & 175 filters, kernel 7, ReLU & Local waveform features \\
+MaxPooling1D & pool size 9 & Temporal compression \\
+Conv1D & 125 filters, kernel 7, ReLU & Higher-level features \\
+Conv1DTranspose & 20 filters, kernel 7, stride 4 & Temporal upsampling \\
+Conv1DTranspose & 25 filters, kernel 7, stride 2 & Temporal upsampling \\
+Conv1DTranspose & 15 filters, kernel 8, stride 2 & Temporal upsampling \\
+MaxPooling1D & pool size 4 & Output length control \\
+Dense & 9000 linear units & Projection to $3000\times3$ \\
+Reshape & $(3000,3)$ & Sequence output \\
+Softmax & axis 2 & P/S/noise probabilities \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Training}
+The model was implemented in TensorFlow/Keras, trained with Adam, and optimized with categorical cross-entropy. Training was configured for up to 75 epochs with a batch size of 1500.
+
+\subsection{Inference}
+For each trace, the predicted P and S channels are searched for peaks. The highest P and S peaks define the predicted phase arrivals. If the predicted P index appears after the predicted S index, the order is swapped to enforce the expected physical ordering.
+
+\subsection{Evaluation}
+Prediction errors are defined as
+\begin{equation}
+\Delta t_P = \left| \frac{(i_P^{pred} - i_P^{label})}{d}(t_{end}-t_{start}) \right|,
+\end{equation}
+\begin{equation}
+\Delta t_S = \left| \frac{(i_S^{pred} - i_S^{label})}{d}(t_{end}-t_{start}) \right|,
+\end{equation}
+where $d=3000$ is the fixed trace dimension. We report correct picks under $\Delta t<1$ s, $\Delta t<2$ s, and $\Delta t<3$ s.
+
+\section{Results}
+\subsection{January 2021}
+% Insert January 2021 table and figures.
+
+\subsection{February 2021}
+\begin{table}[h]
+\centering
+\caption{SeismicNet results for February 2021.}
+\begin{tabular}{lrrrr}
+\toprule
+Criterion & P phases & S phases & At least one phase & Both phases \\
+\midrule
+$\Delta t < 1$ s & 763 & 876 & 1172 & 467 \\
+$\Delta t < 2$ s & 949 & 1161 & 1376 & 734 \\
+$\Delta t < 3$ s & 1039 & 1277 & 1445 & 871 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Qualitative prediction examples}
+% Include no-hit, one-hit, and two-hit examples.
+
+\section{Discussion}
+SeismicNet learned meaningful probability distributions for P- and S-wave arrivals. The model performed better on cleaner data and degraded on traces containing multiple possible events, swarm activity, or strong noise. These results suggest that dataset quality and event complexity are central limitations for local automatic phase picking.
+
+\section{Limitations and Future Work}
+Future work should include larger training datasets, stronger baselines, reproducible code packaging, uncertainty estimates, confidence calibration, and experiments with residual, recurrent, and transformer-based architectures.
+
+\section{Conclusion}
+SeismicNet demonstrates the feasibility of automatic P- and S-wave arrival picking using a one-dimensional convolutional neural network trained on local seismic data. The model can support routine seismic analysis, especially as part of a larger analyst-in-the-loop workflow.
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
